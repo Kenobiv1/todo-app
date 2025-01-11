@@ -7,27 +7,106 @@
     box-sizing: border-box;
 }
 
+/* CSS Variables for Light and Dark Themes */
+:root {
+    --background-color: #ffffff;
+    --text-color: #333333;
+    --input-background: #f9f9f9;
+    --button-background: #28a745;
+    --button-text: #ffffff;
+    --button-hover: #218838;
+    --filter-active-bg: #007bff;
+    --filter-active-text: #ffffff;
+    --filter-inactive-bg: #6c757d;
+    --filter-inactive-text: #ffffff;
+}
+
+body.dark-mode {
+    --background-color: #121212;
+    --text-color: #f0f0f0;
+    --input-background: #1e1e1e;
+    --button-background: #bb86fc;
+    --button-text: #000000;
+    --button-hover: #9a67ea;
+    --filter-active-bg: #03dac6;
+    --filter-active-text: #000000;
+    --filter-inactive-bg: #3a3a3a;
+    --filter-inactive-text: #f0f0f0;
+}
+
 body {
     font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
+    background-color: var(--background-color);
+    color: var(--text-color);
     display: flex;
     height: 100vh;
     justify-content: center;
     align-items: center;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .container {
-    background-color: #fff;
+    background-color: var(--background-color);
     padding: 20px 30px;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     width: 400px;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
 }
 
 h1 {
-    text-align: center;
-    color: #333;
-    margin-bottom: 20px;
+    font-size: 24px;
+    color: var(--text-color);
+}
+
+.theme-toggle {
+    display: flex;
+    align-items: center;
+}
+
+#theme-switch {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    width: 0;
+    height: 0;
+}
+
+.toggle-label {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+    background-color: #ccc;
+    border-radius: 34px;
+    transition: background-color 0.3s;
+}
+
+.toggle-label::after {
+    content: "";
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    left: 2px;
+    top: 2px;
+    background-color: white;
+    border-radius: 50%;
+    transition: transform 0.3s;
+}
+
+#theme-switch:checked + .toggle-label {
+    background-color: #2196F3;
+}
+
+#theme-switch:checked + .toggle-label::after {
+    transform: translateX(26px);
 }
 
 .input-section {
@@ -39,24 +118,28 @@ h1 {
     flex: 1;
     padding: 10px;
     font-size: 16px;
+    background-color: var(--input-background);
     border: 2px solid #ddd;
     border-radius: 4px 0 0 4px;
     outline: none;
+    color: var(--text-color);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 #add-button {
     padding: 10px 20px;
     font-size: 16px;
-    border: 2px solid #28a745;
-    background-color: #28a745;
-    color: #fff;
+    border: 2px solid var(--button-background);
+    background-color: var(--button-background);
+    color: var(--button-text);
     border-radius: 0 4px 4px 0;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s, border-color 0.3s;
 }
 
 #add-button:hover {
-    background-color: #218838;
+    background-color: var(--button-hover);
+    border-color: var(--button-hover);
 }
 
 #todo-list {
@@ -69,6 +152,7 @@ h1 {
     align-items: center;
     padding: 10px;
     border-bottom: 1px solid #ddd;
+    transition: background-color 0.3s ease;
 }
 
 .todo-item:last-child {
@@ -78,6 +162,7 @@ h1 {
 .todo-item input[type="checkbox"] {
     margin-right: 10px;
     transform: scale(1.2);
+    cursor: pointer;
 }
 
 .todo-item span {
@@ -128,20 +213,46 @@ h1 {
 }
 
 .filter-button {
-    background-color: #6c757d;
+    background-color: var(--filter-inactive-bg);
     border: none;
-    color: #fff;
+    color: var(--filter-inactive-text);
     padding: 5px 10px;
     margin: 0 5px;
     border-radius: 4px;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s, color 0.3s;
 }
 
 .filter-button:hover {
-    background-color: #5a6268;
+    background-color: var(--filter-inactive-bg);
+    opacity: 0.8;
 }
 
 .filter-button.active {
-    background-color: #007bff;
+    background-color: var(--filter-active-bg);
+    color: var(--filter-active-text);
+}
+
+/* Responsive Design for Theme Toggle */
+@media (max-width: 500px) {
+    .container {
+        width: 90%;
+        padding: 15px 20px;
+    }
+
+    .toggle-label {
+        width: 40px;
+        height: 20px;
+    }
+
+    .toggle-label::after {
+        width: 16px;
+        height: 16px;
+        left: 2px;
+        top: 2px;
+    }
+
+    #theme-switch:checked + .toggle-label::after {
+        transform: translateX(20px);
+    }
 }
