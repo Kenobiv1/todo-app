@@ -33,7 +33,7 @@ body {
     --edit-button-hover: #e0a800;
     --delete-button-bg: #dc3545;
     --delete-button-hover: #c82333;
-    --filter-icon-color: #333333; /* Changed from #ffffff to dark color for Light Mode */
+    --filter-icon-color: #333333; /* Dark color for Light Mode */
 }
 
 body.dark-mode {
@@ -63,9 +63,10 @@ body {
     background-color: var(--background-color);
     color: var(--text-color);
     display: flex;
-    height: 100vh;
+    min-height: 100vh;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start; /* Align to top to prevent shifting */
+    padding-top: 20px; /* Space from top */
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
@@ -76,6 +77,9 @@ body {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     width: 420px;
     max-width: 90%;
+    max-height: 80vh; /* Limit height to prevent full-page shift */
+    display: flex;
+    flex-direction: column;
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -192,10 +196,43 @@ h1 {
     border-color: var(--button-hover);
 }
 
+/* Filter Section Styles */
+.filter-section {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 25px;
+}
+
+.filter-button {
+    background-color: var(--filter-inactive-bg);
+    border: none;
+    color: var(--filter-inactive-text);
+    padding: 8px 12px;
+    margin: 0 6px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.filter-button:hover {
+    background-color: var(--filter-inactive-bg);
+    opacity: 0.8;
+}
+
+.filter-button.active {
+    background-color: var(--filter-active-bg);
+    color: var(--filter-active-text);
+}
+
 /* To-Do List Styles */
 #todo-list {
     list-style-type: none;
     padding: 0;
+    overflow-y: auto; /* Enable vertical scrolling */
+    flex: 1; /* Allow the list to grow and fill available space */
 }
 
 .todo-item {
@@ -246,37 +283,6 @@ h1 {
 
 .delete-button:hover {
     color: var(--delete-button-bg);
-}
-
-/* Filter Section Styles */
-.filter-section {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 25px;
-}
-
-.filter-button {
-    background-color: var(--filter-inactive-bg);
-    border: none;
-    color: var(--filter-inactive-text);
-    padding: 8px 12px;
-    margin: 0 6px;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background-color 0.3s, color 0.3s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.filter-button:hover {
-    background-color: var(--filter-inactive-bg);
-    opacity: 0.8;
-}
-
-.filter-button.active {
-    background-color: var(--filter-active-bg);
-    color: var(--filter-active-text);
 }
 
 /* Ghost class for Sortable.js */
@@ -342,6 +348,128 @@ body.dark-mode .todo-item:hover {
 @keyframes highlight {
     from { background-color: transparent; }
     to { background-color: rgba(255, 255, 0, 0.2); }
+}
+
+/* Modal Styles */
+
+/* Modal Container Styles */
+.modal-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent backdrop */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Ensure modals appear above other content */
+}
+
+/* Hidden class to hide modals */
+.hidden {
+    display: none;
+}
+
+/* General Modal Styles */
+.modal {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    padding: 20px 30px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    width: 90%;
+    max-width: 400px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Alert Modal Specific Styles */
+.alert-modal .modal-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.alert-modal #alert-message {
+    margin-bottom: 20px;
+    font-size: 16px;
+    text-align: center;
+}
+
+.alert-modal #alert-ok-button {
+    padding: 10px 20px;
+    background-color: var(--button-background);
+    color: var(--button-text);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.alert-modal #alert-ok-button:hover {
+    background-color: var(--button-hover);
+}
+
+/* Prompt Modal Specific Styles */
+.prompt-modal .modal-content {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.prompt-modal #prompt-message {
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+
+.prompt-modal #prompt-input {
+    padding: 10px;
+    font-size: 16px;
+    border: 2px solid var(--input-border);
+    border-radius: 4px;
+    margin-bottom: 20px;
+    background-color: var(--input-background);
+    color: var(--text-color);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.prompt-modal #prompt-input:focus {
+    border-color: var(--button-background);
+    outline: none;
+    box-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.modal-buttons button {
+    padding: 8px 16px;
+    margin-left: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-size: 14px;
+}
+
+#prompt-cancel-button {
+    background-color: #6c757d; /* Gray color */
+    color: #ffffff;
+}
+
+#prompt-cancel-button:hover {
+    background-color: #5a6268;
+}
+
+#prompt-ok-button {
+    background-color: var(--button-background);
+    color: var(--button-text);
+}
+
+#prompt-ok-button:hover {
+    background-color: var(--button-hover);
 }
 
 /* Responsive Design for Theme Toggle */

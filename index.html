@@ -35,7 +35,7 @@
         </header>
 
         <div class="input-section">
-            <input type="text" id="todo-input" placeholder="Add a new task...">
+            <input type="text" id="todo-input" placeholder="Add a new task..." aria-label="Task Input">
             <button id="add-button" aria-label="Add Task"><i class="fas fa-plus"></i></button>
         </div>
         
@@ -49,6 +49,29 @@
         <ul id="todo-list">
             <!-- To-Do items will appear here -->
         </ul>
+    </div>
+
+    <!-- Custom Modal Container -->
+    <div id="modal-container" class="modal-container hidden" aria-hidden="true">
+        <!-- Alert Modal -->
+        <div class="modal alert-modal" role="alertdialog" aria-modal="true" aria-labelledby="alert-message">
+            <div class="modal-content">
+                <p id="alert-message">This is an alert.</p>
+                <button id="alert-ok-button" aria-label="OK">OK</button>
+            </div>
+        </div>
+
+        <!-- Prompt Modal -->
+        <div class="modal prompt-modal" role="dialog" aria-modal="true" aria-labelledby="prompt-message">
+            <div class="modal-content">
+                <p id="prompt-message">Enter your input:</p>
+                <input type="text" id="prompt-input" placeholder="Your input here..." aria-label="Task Input">
+                <div class="modal-buttons">
+                    <button id="prompt-cancel-button" aria-label="Cancel">Cancel</button>
+                    <button id="prompt-ok-button" aria-label="OK">OK</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Include Sortable.js via CDN -->

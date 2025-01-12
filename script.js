@@ -14,6 +14,21 @@ const filterCompleted = document.getElementById('filter-completed');
 const themeSwitch = document.getElementById('theme-switch');
 const body = document.body;
 
+// Modal elements
+const modalContainer = document.getElementById('modal-container');
+
+// Alert Modal Elements
+const alertModal = document.querySelector('.alert-modal');
+const alertMessage = document.getElementById('alert-message');
+const alertOkButton = document.getElementById('alert-ok-button');
+
+// Prompt Modal Elements
+const promptModal = document.querySelector('.prompt-modal');
+const promptMessage = document.getElementById('prompt-message');
+const promptInput = document.getElementById('prompt-input');
+const promptCancelButton = document.getElementById('prompt-cancel-button');
+const promptOkButton = document.getElementById('prompt-ok-button');
+
 // Retrieve to-dos from Local Storage or initialize an empty array
 let todos = JSON.parse(localStorage.getItem('todos')) || [];
 
@@ -23,6 +38,48 @@ let currentFilter = 'all';
 // Function to generate a unique ID for each task
 function generateID() {
     return Date.now().toString() + Math.random().toString(36).substr(2, 9);
+}
+
+// Function to create a single to-do list item
+function createTodoElement(todo) {
+    const li = document.createElement('li');
+    li.className = 'todo-item';
+    li.setAttribute('data-id', todo.id);
+
+    // Create checkbox
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.checked = todo.completed;
+    checkbox.addEventListener('change', () => toggleCompletion(todo.id));
+
+    // Create span for task text
+    const span = document.createElement('span');
+    span.textContent = todo.text;
+    if (todo.completed) {
+        span.classList.add('completed');
+    }
+
+    // Create edit button
+    const editBtn = document.createElement('button');
+    editBtn.className = 'edit-button';
+    editBtn.innerHTML = '<i class="fas fa-edit"></i>';
+    editBtn.setAttribute('data-id', todo.id);
+    editBtn.addEventListener('click', () => openEditModal(todo.id));
+
+    // Create delete button
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'delete-button';
+    deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
+    deleteBtn.setAttribute('data-id', todo.id);
+    deleteBtn.addEventListener('click', () => deleteTodo(todo.id));
+
+    // Append elements to li
+    li.appendChild(checkbox);
+    li.appendChild(span);
+    li.appendChild(editBtn);
+    li.appendChild(deleteBtn);
+
+    return li;
 }
 
 // Function to display to-dos with filtering
@@ -38,51 +95,10 @@ function displayTodos() {
             (currentFilter === 'active' && !todo.completed) ||
             (currentFilter === 'completed' && todo.completed)
         ) {
-            // Create list item
-            const li = document.createElement('li');
-            li.className = 'todo-item';
-            li.setAttribute('data-id', todo.id);
-
-            // Create checkbox
-            const checkbox = document.createElement('input');
-            checkbox.type = 'checkbox';
-            checkbox.checked = todo.completed;
-            checkbox.addEventListener('change', () => toggleCompletion(todo.id));
-
-            // Create span for task text
-            const span = document.createElement('span');
-            span.textContent = todo.text;
-            if (todo.completed) {
-                span.classList.add('completed');
-            }
-
-            // Create edit button
-            const editBtn = document.createElement('button');
-            editBtn.className = 'edit-button';
-            editBtn.innerHTML = '<i class="fas fa-edit"></i>';
-            editBtn.setAttribute('data-id', todo.id);
-            editBtn.addEventListener('click', () => editTodo(todo.id));
-
-            // Create delete button
-            const deleteBtn = document.createElement('button');
-            deleteBtn.className = 'delete-button';
-            deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
-            deleteBtn.setAttribute('data-id', todo.id);
-            deleteBtn.addEventListener('click', () => deleteTodo(todo.id));
-
-            // Append elements to li
-            li.appendChild(checkbox);
-            li.appendChild(span);
-            li.appendChild(editBtn);
-            li.appendChild(deleteBtn);
-
-            // Append li to the list
-            todoList.appendChild(li);
+            const todoElement = createTodoElement(todo);
+            todoList.appendChild(todoElement);
         }
     });
-
-    // Initialize or re-initialize Sortable.js
-    initializeSortable();
 }
 
 // Function to add a new to-do
@@ -96,13 +112,12 @@ function addTodo() {
         };
         todos.push(newTodo);
         updateLocalStorage();
-        displayTodos();
-        todoInput.value = '';
-
-        // Optionally, animate the new task
+        const newTodoElement = createTodoElement(newTodo);
+        todoList.appendChild(newTodoElement);
         animateNewTask(newTodo.id);
+        todoInput.value = '';
     } else {
-        alert('Please enter a task.');
+        openAlertModal('Please enter a task.');
     }
 }
 
@@ -114,47 +129,124 @@ function deleteTodo(id) {
         setTimeout(() => {
             todos = todos.filter(todo => todo.id !== id);
             updateLocalStorage();
-            displayTodos();
+            taskElement.remove();
         }, 500); // Match the animation duration in CSS
     }
 }
 
 // Function to toggle completion status by ID
 function toggleCompletion(id) {
-    todos = todos.map(todo => {
-        if (todo.id === id) {
-            return { ...todo, completed: !todo.completed };
+    const todoIndex = todos.findIndex(todo => todo.id === id);
+    if (todoIndex > -1) {
+        todos[todoIndex].completed = !todos[todoIndex].completed;
+        updateLocalStorage();
+
+        // Update the DOM element
+        const taskSpan = document.querySelector(`.todo-item[data-id="${id}"] span`);
+        if (taskSpan) {
+            taskSpan.classList.toggle('completed');
         }
-        return todo;
-    });
-    updateLocalStorage();
-    displayTodos();
+    }
 }
 
-// Function to edit a to-do by ID
-function editTodo(id) {
+// Function to open Edit Modal
+function openEditModal(id) {
     const todo = todos.find(todo => todo.id === id);
     if (!todo) return;
 
-    const newText = prompt("Edit your task:", todo.text);
-    if (newText !== null) { // If user didn't click cancel
-        const trimmedText = newText.trim();
-        if (trimmedText !== '') {
-            todos = todos.map(todo => {
-                if (todo.id === id) {
-                    return { ...todo, text: trimmedText };
-                }
-                return todo;
-            });
-            updateLocalStorage();
-            displayTodos();
+    promptMessage.textContent = 'Edit your task:';
+    promptInput.value = todo.text;
+    modalContainer.classList.remove('hidden');
+    promptModal.classList.remove('hidden');
+    alertModal.classList.add('hidden');
+    promptInput.focus();
 
-            // Optionally, animate the edited task
-            animateEditTask(id);
+    // Handle OK button
+    const handleOk = () => {
+        const newText = promptInput.value.trim();
+        if (newText !== '') {
+            const todoIndex = todos.findIndex(todo => todo.id === id);
+            if (todoIndex > -1) {
+                todos[todoIndex].text = newText;
+                updateLocalStorage();
+
+                // Update the DOM element
+                const taskSpan = document.querySelector(`.todo-item[data-id="${id}"] span`);
+                if (taskSpan) {
+                    taskSpan.textContent = newText;
+                    animateEditTask(id);
+                }
+            }
+            closeModal();
         } else {
-            alert('Task cannot be empty.');
+            openAlertModal('Task cannot be empty.');
         }
-    }
+    };
+
+    // Handle Cancel button
+    const handleCancel = () => {
+        closeModal();
+    };
+
+    // Remove previous event listeners to prevent multiple bindings
+    promptOkButton.replaceWith(promptOkButton.cloneNode(true));
+    promptCancelButton.replaceWith(promptCancelButton.cloneNode(true));
+
+    // Re-select buttons
+    const newPromptOkButton = document.getElementById('prompt-ok-button');
+    const newPromptCancelButton = document.getElementById('prompt-cancel-button');
+
+    newPromptOkButton.addEventListener('click', handleOk);
+    newPromptCancelButton.addEventListener('click', handleCancel);
+
+    // **NEW: Add Event Listener for Enter Key in Prompt Input**
+    const handleKeyPress = (event) => {
+        if (event.key === 'Enter') {
+            handleOk();
+        }
+    };
+
+    // Attach the keypress event listener
+    promptInput.addEventListener('keypress', handleKeyPress);
+
+    // Remove the keypress listener when the modal is closed to prevent memory leaks
+    const cleanup = () => {
+        promptInput.removeEventListener('keypress', handleKeyPress);
+    };
+
+    // Modify the closeModal function to include cleanup
+    const originalCloseModal = closeModal;
+    window.closeModal = () => {
+        originalCloseModal();
+        cleanup();
+    };
+}
+
+// Function to open Alert Modal
+function openAlertModal(message) {
+    alertMessage.textContent = message;
+    modalContainer.classList.remove('hidden');
+    alertModal.classList.remove('hidden');
+    promptModal.classList.add('hidden');
+
+    // Handle OK button
+    const handleOk = () => {
+        closeModal();
+    };
+
+    // Remove previous event listeners to prevent multiple bindings
+    alertOkButton.replaceWith(alertOkButton.cloneNode(true));
+
+    // Re-select button
+    const newAlertOkButton = document.getElementById('alert-ok-button');
+    newAlertOkButton.addEventListener('click', handleOk);
+}
+
+// Function to close modals
+function closeModal() {
+    modalContainer.classList.add('hidden');
+    alertModal.classList.add('hidden');
+    promptModal.classList.add('hidden');
 }
 
 // Function to set the current filter and update active button styling
@@ -207,10 +299,10 @@ function loadTheme() {
     }
 }
 
-// Reference to Sortable instance
+// Initialize Sortable.js once
 let sortable = null;
 
-// Initialize Sortable.js on the todoList
+// Function to initialize Sortable.js on the todoList
 function initializeSortable() {
     if (sortable) {
         sortable.destroy(); // Destroy the previous instance to prevent duplicates
@@ -236,9 +328,8 @@ function initializeSortable() {
             // Insert the dragged task at the new position
             todos.splice(newIndex, 0, draggedTask);
 
-            // Update Local Storage and re-render the list
+            // Update Local Storage
             updateLocalStorage();
-            displayTodos();
         },
     });
 }
@@ -267,7 +358,7 @@ function animateEditTask(id) {
 // Event Listener for Add Button
 addButton.addEventListener('click', addTodo);
 
-// Event Listener for Enter Key
+// Event Listener for Enter Key in Add Task Input
 todoInput.addEventListener('keypress', function(e) {
     if (e.key === 'Enter') {
         addTodo();
@@ -282,8 +373,23 @@ filterCompleted.addEventListener('click', () => setFilter('completed'));
 // Event Listener for Theme Toggle
 themeSwitch.addEventListener('change', toggleTheme);
 
+// Close modal when clicking outside the modal content
+window.addEventListener('click', function(event) {
+    if (event.target === modalContainer) {
+        closeModal();
+    }
+});
+
+// Close modal when pressing the Escape key
+window.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape' && !modalContainer.classList.contains('hidden')) {
+        closeModal();
+    }
+});
+
 // Initial load
 document.addEventListener('DOMContentLoaded', () => {
     loadTheme();
     displayTodos();
+    initializeSortable();
 });
