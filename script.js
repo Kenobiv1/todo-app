@@ -26,62 +26,62 @@ function generateID() {
 }
 
 // Function to display to-dos with filtering
-function displayTodos(searchQuery = '') {
+function displayTodos() {
     // Clear the current list
     todoList.innerHTML = '';
 
-    // Iterate over the original todos array
+    // Iterate over the todos array
     todos.forEach((todo) => {
         // Determine if the task should be displayed based on the current filter
-        if (currentFilter === 'all' ||
+        if (
+            currentFilter === 'all' ||
             (currentFilter === 'active' && !todo.completed) ||
-            (currentFilter === 'completed' && todo.completed)) {
+            (currentFilter === 'completed' && todo.completed)
+        ) {
+            // Create list item
+            const li = document.createElement('li');
+            li.className = 'todo-item';
+            li.setAttribute('data-id', todo.id);
 
-            // If there's a search query, filter based on task text
-            if (todo.text.toLowerCase().includes(searchQuery.toLowerCase())) {
+            // Create checkbox
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.checked = todo.completed;
+            checkbox.addEventListener('change', () => toggleCompletion(todo.id));
 
-                const li = document.createElement('li');
-                li.className = 'todo-item';
-                li.setAttribute('data-id', todo.id); // Set data-id for reference
-
-                // Create checkbox
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.checked = todo.completed || false;
-                checkbox.addEventListener('change', () => toggleCompletion(todo.id));
-
-                // Create span for task text
-                const span = document.createElement('span');
-                span.textContent = todo.text;
-                if (todo.completed) {
-                    span.classList.add('completed');
-                }
-
-                // Create edit button
-                const editBtn = document.createElement('button');
-                editBtn.className = 'edit-button';
-                editBtn.textContent = 'Edit';
-                editBtn.setAttribute('data-id', todo.id);
-                editBtn.addEventListener('click', () => editTodo(todo.id));
-
-                // Create delete button
-                const deleteBtn = document.createElement('button');
-                deleteBtn.className = 'delete-button';
-                deleteBtn.textContent = 'Delete';
-                deleteBtn.setAttribute('data-id', todo.id);
-                deleteBtn.addEventListener('click', () => deleteTodo(todo.id));
-
-                // Append elements to li
-                li.appendChild(checkbox);
-                li.appendChild(span);
-                li.appendChild(editBtn);
-                li.appendChild(deleteBtn);
-                todoList.appendChild(li);
+            // Create span for task text
+            const span = document.createElement('span');
+            span.textContent = todo.text;
+            if (todo.completed) {
+                span.classList.add('completed');
             }
+
+            // Create edit button
+            const editBtn = document.createElement('button');
+            editBtn.className = 'edit-button';
+            editBtn.innerHTML = '<i class="fas fa-edit"></i>';
+            editBtn.setAttribute('data-id', todo.id);
+            editBtn.addEventListener('click', () => editTodo(todo.id));
+
+            // Create delete button
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'delete-button';
+            deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
+            deleteBtn.setAttribute('data-id', todo.id);
+            deleteBtn.addEventListener('click', () => deleteTodo(todo.id));
+
+            // Append elements to li
+            li.appendChild(checkbox);
+            li.appendChild(span);
+            li.appendChild(editBtn);
+            li.appendChild(deleteBtn);
+
+            // Append li to the list
+            todoList.appendChild(li);
         }
     });
 
-    // Re-initialize Sortable.js after rendering the list
+    // Initialize or re-initialize Sortable.js
     initializeSortable();
 }
 
@@ -98,6 +98,9 @@ function addTodo() {
         updateLocalStorage();
         displayTodos();
         todoInput.value = '';
+
+        // Optionally, animate the new task
+        animateNewTask(newTodo.id);
     } else {
         alert('Please enter a task.');
     }
@@ -105,9 +108,15 @@ function addTodo() {
 
 // Function to delete a to-do by ID
 function deleteTodo(id) {
-    todos = todos.filter(todo => todo.id !== id);
-    updateLocalStorage();
-    displayTodos();
+    const taskElement = document.querySelector(`.todo-item[data-id="${id}"]`);
+    if (taskElement) {
+        taskElement.classList.add('fade-out');
+        setTimeout(() => {
+            todos = todos.filter(todo => todo.id !== id);
+            updateLocalStorage();
+            displayTodos();
+        }, 500); // Match the animation duration in CSS
+    }
 }
 
 // Function to toggle completion status by ID
@@ -139,6 +148,9 @@ function editTodo(id) {
             });
             updateLocalStorage();
             displayTodos();
+
+            // Optionally, animate the edited task
+            animateEditTask(id);
         } else {
             alert('Task cannot be empty.');
         }
@@ -231,6 +243,27 @@ function initializeSortable() {
     });
 }
 
+// Optional: Animation functions for enhanced feedback
+function animateNewTask(id) {
+    const taskElement = document.querySelector(`.todo-item[data-id="${id}"]`);
+    if (taskElement) {
+        taskElement.classList.add('fade-in');
+        setTimeout(() => {
+            taskElement.classList.remove('fade-in');
+        }, 500);
+    }
+}
+
+function animateEditTask(id) {
+    const taskElement = document.querySelector(`.todo-item[data-id="${id}"]`);
+    if (taskElement) {
+        taskElement.classList.add('highlight');
+        setTimeout(() => {
+            taskElement.classList.remove('highlight');
+        }, 500);
+    }
+}
+
 // Event Listener for Add Button
 addButton.addEventListener('click', addTodo);
 
@@ -250,5 +283,7 @@ filterCompleted.addEventListener('click', () => setFilter('completed'));
 themeSwitch.addEventListener('change', toggleTheme);
 
 // Initial load
-loadTheme();
-displayTodos();
+document.addEventListener('DOMContentLoaded', () => {
+    loadTheme();
+    displayTodos();
+});

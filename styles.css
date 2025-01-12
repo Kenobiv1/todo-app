@@ -7,6 +7,11 @@
     box-sizing: border-box;
 }
 
+/* Google Font */
+body {
+    font-family: 'Roboto', sans-serif;
+}
+
 /* CSS Variables for Light and Dark Themes */
 :root {
     --background-color: #ffffff;
@@ -22,6 +27,13 @@
     --ghost-background: #f0f0f0; /* Light mode ghost background */
     --ghost-border: #ccc; /* Light mode ghost border */
     --todo-hover-bg: #f9f9f9; /* Light mode hover background */
+    --input-border: #ddd;
+    --input-focus-border: #28a745;
+    --edit-button-bg: #ffc107;
+    --edit-button-hover: #e0a800;
+    --delete-button-bg: #dc3545;
+    --delete-button-hover: #c82333;
+    --filter-icon-color: #333333; /* Changed from #ffffff to dark color for Light Mode */
 }
 
 body.dark-mode {
@@ -38,10 +50,16 @@ body.dark-mode {
     --ghost-background: #2c2c2c; /* Dark mode ghost background */
     --ghost-border: #555; /* Dark mode ghost border */
     --todo-hover-bg: #2c2c2c; /* Dark mode hover background */
+    --input-border: #555;
+    --input-focus-border: #bb86fc;
+    --edit-button-bg: #ffc107;
+    --edit-button-hover: #e0a800;
+    --delete-button-bg: #dc3545;
+    --delete-button-hover: #c82333;
+    --filter-icon-color: #ffffff; /* White color for Dark Mode */
 }
 
 body {
-    font-family: Arial, sans-serif;
     background-color: var(--background-color);
     color: var(--text-color);
     display: flex;
@@ -53,10 +71,11 @@ body {
 
 .container {
     background-color: var(--background-color);
-    padding: 20px 30px;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    width: 400px;
+    padding: 30px 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 420px;
+    max-width: 90%;
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -64,11 +83,12 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
 }
 
 h1 {
-    font-size: 24px;
+    font-size: 28px;
+    font-weight: 700;
     color: var(--text-color);
 }
 
@@ -90,24 +110,19 @@ h1 {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    width: 80px; /* Increased width to accommodate larger icons */
-    height: 40px; /* Increased height for better centering */
+    width: 80px;
+    height: 40px;
     background-color: #ccc;
-    border-radius: 40px; /* Adjusted border-radius to match height */
-    padding: 0 10px; /* Increased padding for spacing */
+    border-radius: 40px;
+    padding: 0 10px;
     transition: background-color 0.3s;
 }
 
-/* Smooth transitions for all elements */
-.toggle-label, .toggle-ball, .toggle-icon {
-    transition: all 0.3s ease;
-}
-
 .toggle-icon {
-    font-size: 20px; /* Increased font-size for better visibility */
+    font-size: 18px;
     color: #FFA500; /* Orange for Sun */
-    z-index: 1; /* Below toggle ball */
-    pointer-events: none; /* Prevent icon clicks */
+    z-index: 1;
+    pointer-events: none;
 }
 
 .toggle-icon.moon {
@@ -116,14 +131,14 @@ h1 {
 
 .toggle-ball {
     position: absolute;
-    width: 30px; /* Increased size to match new label dimensions */
+    width: 30px;
     height: 30px;
     background-color: white;
     border-radius: 50%;
-    top: 5px; /* Adjusted to center vertically */
+    top: 5px;
     left: 5px;
-    transition: transform 0.3s;
-    z-index: 2; /* Above icons */
+    transition: transform 0.3s, background-color 0.3s;
+    z-index: 2;
 }
 
 #theme-switch:checked + .toggle-label {
@@ -131,36 +146,45 @@ h1 {
 }
 
 #theme-switch:checked + .toggle-label .toggle-ball {
-    transform: translateX(40px); /* Adjusted for new label width */
+    transform: translateX(40px);
+    background-color: #f0e68c; /* Optional: Change ball color when toggled */
 }
 
 /* Input Section Styles */
 .input-section {
     display: flex;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
 }
 
 #todo-input {
     flex: 1;
-    padding: 10px;
+    padding: 12px 15px;
     font-size: 16px;
     background-color: var(--input-background);
-    border: 2px solid #ddd;
-    border-radius: 4px 0 0 4px;
+    border: 2px solid var(--input-border);
+    border-radius: 6px 0 0 6px;
     outline: none;
     color: var(--text-color);
     transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
+#todo-input:focus {
+    border-color: var(--button-background);
+    box-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
+}
+
 #add-button {
-    padding: 10px 20px;
-    font-size: 16px;
+    padding: 12px 15px;
+    font-size: 18px;
     border: 2px solid var(--button-background);
     background-color: var(--button-background);
     color: var(--button-text);
-    border-radius: 0 4px 4px 0;
+    border-radius: 0 6px 6px 0;
     cursor: pointer;
     transition: background-color 0.3s, border-color 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 #add-button:hover {
@@ -177,10 +201,10 @@ h1 {
 .todo-item {
     display: flex;
     align-items: center;
-    padding: 10px;
+    padding: 12px 10px;
     border-bottom: 1px solid #ddd;
     transition: background-color 0.3s ease;
-    cursor: grab; /* Cursor indicates draggable item */
+    cursor: grab;
 }
 
 .todo-item:last-child {
@@ -188,14 +212,17 @@ h1 {
 }
 
 .todo-item input[type="checkbox"] {
-    margin-right: 10px;
+    margin-right: 15px;
     transform: scale(1.2);
     cursor: pointer;
 }
 
 .todo-item span {
     flex: 1;
-    font-size: 16px;
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--text-color);
+    transition: color 0.3s ease;
 }
 
 .completed {
@@ -203,52 +230,43 @@ h1 {
     color: #888;
 }
 
-.edit-button {
-    background-color: #007bff;
+.edit-button, .delete-button {
+    background: none;
     border: none;
-    color: #fff;
-    padding: 5px 10px;
-    border-radius: 4px;
+    color: var(--filter-icon-color);
     cursor: pointer;
-    transition: background-color 0.3s;
-    margin-left: 10px;
+    margin-left: 15px;
+    font-size: 16px;
+    transition: color 0.3s ease;
 }
 
 .edit-button:hover {
-    background-color: #0069d9;
-}
-
-.delete-button {
-    background-color: #dc3545;
-    border: none;
-    color: #fff;
-    padding: 5px 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    margin-left: 10px;
+    color: var(--edit-button-bg);
 }
 
 .delete-button:hover {
-    background-color: #c82333;
+    color: var(--delete-button-bg);
 }
 
 /* Filter Section Styles */
 .filter-section {
     display: flex;
     justify-content: center;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
 }
 
 .filter-button {
     background-color: var(--filter-inactive-bg);
     border: none;
     color: var(--filter-inactive-text);
-    padding: 5px 10px;
-    margin: 0 5px;
-    border-radius: 4px;
+    padding: 8px 12px;
+    margin: 0 6px;
+    border-radius: 6px;
     cursor: pointer;
     transition: background-color 0.3s, color 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .filter-button:hover {
@@ -290,18 +308,51 @@ body.dark-mode .sortable-ghost {
 
 /* Additional hover effects for Dark Mode */
 body.dark-mode .todo-item:hover {
-    background-color: #2c2c2c; /* Dark hover background */
+    background-color: var(--todo-hover-bg); /* Already adapted */
+}
+
+/* Icon Styling */
+.toggle-icon i, .filter-button i, #add-button i {
+    pointer-events: none; /* Prevent icons from capturing clicks */
+}
+
+/* Animations for Feedback */
+.fade-in {
+    animation: fadeIn 0.5s forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-out {
+    animation: fadeOut 0.5s forwards;
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(-10px); }
+}
+
+.highlight {
+    animation: highlight 0.5s forwards;
+}
+
+@keyframes highlight {
+    from { background-color: transparent; }
+    to { background-color: rgba(255, 255, 0, 0.2); }
 }
 
 /* Responsive Design for Theme Toggle */
 @media (max-width: 500px) {
     .container {
         width: 90%;
-        padding: 15px 20px;
+        padding: 20px 25px;
     }
 
     h1 {
-        font-size: 20px;
+        font-size: 22px;
     }
 
     .toggle-label {
@@ -321,8 +372,30 @@ body.dark-mode .todo-item:hover {
         transform: translateX(34px); /* Adjusted for new label width */
     }
 
-    .toggle-icon.sun,
-    .toggle-icon.moon {
-        font-size: 18px; /* Increased icon size for better visibility on smaller screens */
+    .toggle-icon.sun, .toggle-icon.moon {
+        font-size: 16px; /* Adjusted icon size */
+    }
+
+    .input-section {
+        flex-direction: column;
+    }
+
+    #todo-input {
+        border-radius: 6px;
+        margin-bottom: 10px;
+    }
+
+    #add-button {
+        border-radius: 6px;
+        width: 100%;
+    }
+
+    .filter-button {
+        padding: 8px 10px;
+        margin: 0 4px;
+    }
+
+    .edit-button, .delete-button {
+        margin-left: 10px;
     }
 }

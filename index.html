@@ -4,8 +4,17 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enhanced To-Do List App</title>
+    <title>Minimalist To-Do List App</title>
     <link rel="stylesheet" href="styles.css">
+    <!-- Google Fonts for Modern Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons (Free CDN) -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
 </head>
 <body>
     <div class="container">
@@ -16,25 +25,25 @@
                 <input type="checkbox" id="theme-switch" />
                 <label for="theme-switch" class="toggle-label">
                     <!-- Sun Icon -->
-                    <span class="toggle-icon sun">&#9728;</span>
+                    <span class="toggle-icon sun"><i class="fas fa-sun"></i></span>
                     <!-- Toggle Ball -->
                     <span class="toggle-ball"></span>
                     <!-- Moon Icon -->
-                    <span class="toggle-icon moon">&#9790;</span>
+                    <span class="toggle-icon moon"><i class="fas fa-moon"></i></span>
                 </label>
             </div>
         </header>
 
         <div class="input-section">
             <input type="text" id="todo-input" placeholder="Add a new task...">
-            <button id="add-button">Add</button>
+            <button id="add-button" aria-label="Add Task"><i class="fas fa-plus"></i></button>
         </div>
         
         <!-- Filter Buttons -->
         <div class="filter-section">
-            <button id="filter-all" class="filter-button active">All</button>
-            <button id="filter-active" class="filter-button">Active</button>
-            <button id="filter-completed" class="filter-button">Completed</button>
+            <button id="filter-all" class="filter-button active" aria-label="Show All Tasks"><i class="fas fa-list"></i></button>
+            <button id="filter-active" class="filter-button" aria-label="Show Active Tasks"><i class="fas fa-spinner"></i></button>
+            <button id="filter-completed" class="filter-button" aria-label="Show Completed Tasks"><i class="fas fa-check-circle"></i></button>
         </div>
         
         <ul id="todo-list">
