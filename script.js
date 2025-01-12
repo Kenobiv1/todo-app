@@ -2,6 +2,8 @@
 
 // Select DOM elements
 const todoInput = document.getElementById('todo-input');
+const todoDate = document.getElementById('todo-date');
+const todoTime = document.getElementById('todo-time');
 const addButton = document.getElementById('add-button');
 const todoList = document.getElementById('todo-list');
 
@@ -26,6 +28,8 @@ const alertOkButton = document.getElementById('alert-ok-button');
 const promptModal = document.querySelector('.prompt-modal');
 const promptMessage = document.getElementById('prompt-message');
 const promptInput = document.getElementById('prompt-input');
+const promptDate = document.getElementById('prompt-date'); // **NEW: Added**
+const promptTime = document.getElementById('prompt-time'); // **NEW: Added**
 const promptCancelButton = document.getElementById('prompt-cancel-button');
 const promptOkButton = document.getElementById('prompt-ok-button');
 
@@ -38,6 +42,23 @@ let currentFilter = 'all';
 // Function to generate a unique ID for each task
 function generateID() {
     return Date.now().toString() + Math.random().toString(36).substr(2, 9);
+}
+
+// Function to format date (YYYY-MM-DD) to a more readable format (e.g., Jan 1, 2025)
+function formatDate(dateStr) {
+    if (!dateStr) return '';
+    const options = { year: 'numeric', month: 'short', day: 'numeric' };
+    const date = new Date(dateStr);
+    return date.toLocaleDateString(undefined, options);
+}
+
+// Function to format time (HH:MM) to a more readable format (e.g., 2:30 PM)
+function formatTime(timeStr) {
+    if (!timeStr) return '';
+    const [hour, minute] = timeStr.split(':');
+    const date = new Date();
+    date.setHours(hour, minute);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
 // Function to create a single to-do list item
@@ -59,6 +80,22 @@ function createTodoElement(todo) {
         span.classList.add('completed');
     }
 
+    // Create due date span if dueDate exists
+    let dueDateSpan = null;
+    if (todo.dueDate) {
+        dueDateSpan = document.createElement('span');
+        dueDateSpan.className = 'due-date';
+        dueDateSpan.textContent = `Due: ${formatDate(todo.dueDate)}`;
+    }
+
+    // Create due time span if dueTime exists
+    let dueTimeSpan = null;
+    if (todo.dueTime) {
+        dueTimeSpan = document.createElement('span');
+        dueTimeSpan.className = 'due-time';
+        dueTimeSpan.textContent = `@ ${formatTime(todo.dueTime)}`;
+    }
+
     // Create edit button
     const editBtn = document.createElement('button');
     editBtn.className = 'edit-button';
@@ -76,6 +113,8 @@ function createTodoElement(todo) {
     // Append elements to li
     li.appendChild(checkbox);
     li.appendChild(span);
+    if (dueDateSpan) li.appendChild(dueDateSpan);
+    if (dueTimeSpan) li.appendChild(dueTimeSpan);
     li.appendChild(editBtn);
     li.appendChild(deleteBtn);
 
@@ -104,10 +143,15 @@ function displayTodos() {
 // Function to add a new to-do
 function addTodo() {
     const newTodoText = todoInput.value.trim();
+    const newTodoDate = todoDate.value;
+    const newTodoTime = todoTime.value;
+
     if (newTodoText !== '') {
         const newTodo = {
             id: generateID(),
             text: newTodoText,
+            dueDate: newTodoDate || null, // Allow null if not set
+            dueTime: newTodoTime || null, // Allow null if not set
             completed: false
         };
         todos.push(newTodo);
@@ -115,7 +159,10 @@ function addTodo() {
         const newTodoElement = createTodoElement(newTodo);
         todoList.appendChild(newTodoElement);
         animateNewTask(newTodo.id);
+        // Clear input fields
         todoInput.value = '';
+        todoDate.value = '';
+        todoTime.value = '';
     } else {
         openAlertModal('Please enter a task.');
     }
@@ -156,6 +203,9 @@ function openEditModal(id) {
 
     promptMessage.textContent = 'Edit your task:';
     promptInput.value = todo.text;
+    // **NEW: Set date and time in the modal inputs**
+    promptDate.value = todo.dueDate || '';
+    promptTime.value = todo.dueTime || '';
     modalContainer.classList.remove('hidden');
     promptModal.classList.remove('hidden');
     alertModal.classList.add('hidden');
@@ -164,18 +214,57 @@ function openEditModal(id) {
     // Handle OK button
     const handleOk = () => {
         const newText = promptInput.value.trim();
+        const newDate = promptDate.value;
+        const newTime = promptTime.value;
+
         if (newText !== '') {
             const todoIndex = todos.findIndex(todo => todo.id === id);
             if (todoIndex > -1) {
                 todos[todoIndex].text = newText;
+                todos[todoIndex].dueDate = newDate || null;
+                todos[todoIndex].dueTime = newTime || null;
                 updateLocalStorage();
 
                 // Update the DOM element
                 const taskSpan = document.querySelector(`.todo-item[data-id="${id}"] span`);
                 if (taskSpan) {
                     taskSpan.textContent = newText;
-                    animateEditTask(id);
                 }
+
+                // Update due date and time
+                const dueDateSpan = document.querySelector(`.todo-item[data-id="${id}"] .due-date`);
+                if (dueDateSpan) {
+                    if (newDate) {
+                        dueDateSpan.textContent = `Due: ${formatDate(newDate)}`;
+                    } else {
+                        dueDateSpan.remove();
+                    }
+                } else if (newDate) {
+                    // If previously no due date, but now set
+                    const taskItem = document.querySelector(`.todo-item[data-id="${id}"]`);
+                    const newDueDateSpan = document.createElement('span');
+                    newDueDateSpan.className = 'due-date';
+                    newDueDateSpan.textContent = `Due: ${formatDate(newDate)}`;
+                    taskItem.insertBefore(newDueDateSpan, taskItem.querySelector('.edit-button'));
+                }
+
+                const dueTimeSpan = document.querySelector(`.todo-item[data-id="${id}"] .due-time`);
+                if (dueTimeSpan) {
+                    if (newTime) {
+                        dueTimeSpan.textContent = `@ ${formatTime(newTime)}`;
+                    } else {
+                        dueTimeSpan.remove();
+                    }
+                } else if (newTime) {
+                    // If previously no due time, but now set
+                    const taskItem = document.querySelector(`.todo-item[data-id="${id}"]`);
+                    const newDueTimeSpan = document.createElement('span');
+                    newDueTimeSpan.className = 'due-time';
+                    newDueTimeSpan.textContent = `@ ${formatTime(newTime)}`;
+                    taskItem.insertBefore(newDueTimeSpan, taskItem.querySelector('.edit-button'));
+                }
+
+                animateEditTask(id);
             }
             closeModal();
         } else {
@@ -199,19 +288,23 @@ function openEditModal(id) {
     newPromptOkButton.addEventListener('click', handleOk);
     newPromptCancelButton.addEventListener('click', handleCancel);
 
-    // **NEW: Add Event Listener for Enter Key in Prompt Input**
+    // **NEW: Add Event Listener for Enter Key in Prompt Inputs**
     const handleKeyPress = (event) => {
         if (event.key === 'Enter') {
             handleOk();
         }
     };
 
-    // Attach the keypress event listener
+    // Attach the keypress event listener to all inputs in the modal
     promptInput.addEventListener('keypress', handleKeyPress);
+    promptDate.addEventListener('keypress', handleKeyPress);
+    promptTime.addEventListener('keypress', handleKeyPress);
 
-    // Remove the keypress listener when the modal is closed to prevent memory leaks
+    // Remove the keypress listeners when the modal is closed to prevent memory leaks
     const cleanup = () => {
         promptInput.removeEventListener('keypress', handleKeyPress);
+        promptDate.removeEventListener('keypress', handleKeyPress);
+        promptTime.removeEventListener('keypress', handleKeyPress);
     };
 
     // Modify the closeModal function to include cleanup
