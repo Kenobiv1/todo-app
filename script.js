@@ -42,6 +42,7 @@ function displayTodos(searchQuery = '') {
 
                 const li = document.createElement('li');
                 li.className = 'todo-item';
+                li.setAttribute('data-id', todo.id); // Set data-id for reference
 
                 // Create checkbox
                 const checkbox = document.createElement('input');
@@ -79,6 +80,9 @@ function displayTodos(searchQuery = '') {
             }
         }
     });
+
+    // Re-initialize Sortable.js after rendering the list
+    initializeSortable();
 }
 
 // Function to add a new to-do
@@ -189,6 +193,42 @@ function loadTheme() {
         body.classList.remove('dark-mode');
         themeSwitch.checked = false;
     }
+}
+
+// Reference to Sortable instance
+let sortable = null;
+
+// Initialize Sortable.js on the todoList
+function initializeSortable() {
+    if (sortable) {
+        sortable.destroy(); // Destroy the previous instance to prevent duplicates
+    }
+
+    sortable = Sortable.create(todoList, {
+        animation: 150, // Smooth animation when dragging
+        ghostClass: 'sortable-ghost', // Class name for the drop placeholder
+        onEnd: function (evt) {
+            const itemEl = evt.item; // dragged HTMLElement
+            const newIndex = evt.newIndex;
+
+            // Get the task ID from the dragged element
+            const draggedTaskId = itemEl.getAttribute('data-id');
+
+            // Find the dragged task
+            const draggedTask = todos.find(todo => todo.id === draggedTaskId);
+            if (!draggedTask) return;
+
+            // Remove the dragged task from its original position
+            todos = todos.filter(todo => todo.id !== draggedTaskId);
+
+            // Insert the dragged task at the new position
+            todos.splice(newIndex, 0, draggedTask);
+
+            // Update Local Storage and re-render the list
+            updateLocalStorage();
+            displayTodos();
+        },
+    });
 }
 
 // Event Listener for Add Button

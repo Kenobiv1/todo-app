@@ -11,11 +11,16 @@
     <div class="container">
         <header>
             <h1>My To-Do List</h1>
-            <!-- Theme Toggle Switch -->
+            <!-- Theme Toggle Switch with Icons -->
             <div class="theme-toggle">
                 <input type="checkbox" id="theme-switch" />
                 <label for="theme-switch" class="toggle-label">
+                    <!-- Sun Icon -->
+                    <span class="toggle-icon sun">&#9728;</span>
+                    <!-- Toggle Ball -->
                     <span class="toggle-ball"></span>
+                    <!-- Moon Icon -->
+                    <span class="toggle-icon moon">&#9790;</span>
                 </label>
             </div>
         </header>
@@ -37,6 +42,8 @@
         </ul>
     </div>
 
+    <!-- Include Sortable.js via CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
